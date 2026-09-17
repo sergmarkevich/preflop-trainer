@@ -44,3 +44,18 @@
   if (typeof window !== 'undefined') window.Logic = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
 })();
+
+/* ---- наборы спотов для тренировки ---- */
+(function () {
+  const P = [
+    { key: 'open_all', name: 'Все открытия', items: ['ep_open', 'hj_open', 'co_open', 'btn_open', 'sb_open'] },
+    { key: 'btn_all', name: 'BTN против всех соперников', items: ['btn_open', 'btn_vs_limp', 'btn_vs_2_fish', 'btn_vs_aggro_open', 'btn_vs_passive_open', 'btn_vs_ep_open', 'btn_vs_co_pro_open', 'btn_squeeze'] },
+    { key: 'blind_def', name: 'Защита блайндов', items: ['bb_vs_aggro_open', 'bb_vs_passive_open', 'bb_vs_sb_open', 'sb_3bet_vs_btn', 'bb_squeeze'] },
+    { key: 'vs_open', name: 'Против открытия (все)', items: ['hj_vs_ep_open', 'btn_vs_ep_open', 'co_vs_hj_open', 'btn_vs_aggro_open', 'btn_vs_passive_open', 'ep_vs_pro_open', 'btn_vs_co_pro_open', 'bb_vs_aggro_open', 'bb_vs_passive_open', 'bb_vs_sb_open'] },
+    { key: 'vs3bet', name: 'Против 3-бета', items: ['oop_vs_passive_3bet', 'oop_vs_aggro_3bet', 'ip_vs_passive_3bet', 'ip_vs_aggro_3bet', 'sb_vs_bb_3bet'] },
+    { key: 'fourbet', name: '4-бет и против 4-бета', items: ['oop_cold_4bet_vs_tight', 'ip_cold_4bet_vs_tight', 'oop_cold_4bet_vs_aggro', 'ip_cold_4bet_vs_aggro', 'oop_vs_passive_4bet', 'ip_vs_passive_4bet', 'oop_vs_aggro_4bet', 'ip_vs_aggro_4bet'] },
+    { key: 'all', name: 'Всё вместе (33 спота)', items: Object.keys((typeof window !== 'undefined' ? window.RANGES : global.window.RANGES).ranges) }
+  ];
+  const A = (typeof window !== 'undefined' ? window.Logic : module.exports);
+  A.PRESETS = P;
+})();

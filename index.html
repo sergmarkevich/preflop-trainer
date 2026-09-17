@@ -15,7 +15,13 @@
 
 <section id="v-quiz">
   <div class="card">
-    <select id="scen"></select>
+    <div class="dim">Набор спотов для тренировки</div>
+    <select id="preset"></select>
+    <details style="margin-top:8px">
+      <summary class="dim">Выбрать споты вручную</summary>
+      <div id="spotList" style="max-height:220px;overflow:auto;margin-top:6px"></div>
+    </details>
+    <div class="dim" id="setInfo" style="margin-top:8px"></div>
     <div class="hand" id="hand">—</div>
     <div class="spot" id="spot"></div>
     <div class="btns" id="btns"></div>

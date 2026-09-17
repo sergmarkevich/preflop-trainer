@@ -1,4 +1,4 @@
-const CACHE = 'preflop-trainer-v1';
+const CACHE = 'preflop-trainer-v2';
 const FILES = ['./', 'index.html', 'styles.css', 'app.js', 'ranges.js', 'manifest.webmanifest',
                'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => {
