@@ -2,6 +2,7 @@
 const R = window.RANGES, RANGES = R.ranges, SECTIONS = R.sections;
 const L = window.Logic;
 const { CELLS, WEIGHTED, actionList, actionsOf, acceptable, scenarioName, PRESETS, ACT_RU, ACT_CLS } = L;
+const VER = '2026-09-17.3';
 const STORE = 'preflopTrainerStats_v1', SETSTORE = 'preflopTrainerSet_v1';
 const $ = (s) => document.querySelector(s);
 const state = { scens: [], scen: null, hand: null, answered: false, ok: null };
@@ -191,8 +192,18 @@ function init() {
     $('#cellInfo').innerHTML = '<b>' + hand + '</b>: ' + (acts.length ? acts.map(a => ACT_RU[a] || a).join(' / ') : 'Фолд') + mixed;
   });
   document.querySelectorAll('#tabs button').forEach(b => b.addEventListener('click', () => show(b.dataset.v)));
+  if ($('#ver')) $('#ver').textContent = VER;
+  if ($('#updateApp')) $('#updateApp').addEventListener('click', () => {
+    if (navigator.serviceWorker) navigator.serviceWorker.getRegistration().then(r => {
+      if (r) r.update();
+      setTimeout(() => location.reload(), 800);
+    }); else location.reload();
+  });
   $('#resetErr').addEventListener('click', () => { if (confirm('Обнулить статистику ошибок?')) { stats = {}; save(); renderErrors(); } });
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => {});
+    navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
+  }
   nextHand();
 }
 document.addEventListener('DOMContentLoaded', init);
