@@ -2,6 +2,7 @@
 <html lang="ru"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#15171c">
 <title>Префлоп-тренажёр</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -38,18 +39,11 @@
   <div class="card"><button id="resetErr" style="width:100%;padding:10px;border-radius:9px;border:1px solid #313643;background:#262a34;color:#e8eaf0">Обнулить статистику ошибок</button></div>
 </section>
 
-<section id="v-fact" style="display:none">
-  <div class="card"><h2 style="margin-top:0">Мои открытия против чарта</h2><div id="factOpen"></div>
-    <div class="dim">Основано на 18 775 раздачах PokerOK ($0.01/$0.02, 6-max). Проценты чарта — от всех 1326 комбинаций, твои — от фактически пришедших рук, сравнение ориентировочное.</div></div>
-  <div class="card"><h2 style="margin-top:0">Против открытия: мои частоты</h2><div id="factFacing"></div></div>
-</section>
-
 <div id="tabs">
   <button data-v="quiz" class="on">Тренировка</button>
   <button data-v="charts">Чарты</button>
   <button data-v="err">Ошибки</button>
-  <button data-v="fact">Мои факты</button>
-</div>
+  </div>
 <div id="foot">Диапазоны — ручная разметка автора тренажёра (не выгрузка солвера, без частот). Для личного использования.</div>
 <script src="ranges.js"></script>
 <script src="logic.js"></script>

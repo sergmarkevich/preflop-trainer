@@ -92,11 +92,10 @@ function answer(act) {
 
 /* ---- вкладки ---- */
 function show(v) {
-  ['quiz', 'charts', 'err', 'fact'].forEach(k => { $('#v-' + k).style.display = (k === v ? '' : 'none'); });
+  ['quiz', 'charts', 'err'].forEach(k => { $('#v-' + k).style.display = (k === v ? '' : 'none'); });
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   if (v === 'charts') renderCharts();
   if (v === 'err') renderErrors();
-  if (v === 'fact') renderFacts();
 }
 
 function renderErrors() {
@@ -114,19 +113,6 @@ function renderCharts() {
   const scen = $('#scen2').value || state.scen;
   $('#chartFull').innerHTML = '<div class="spot" style="margin-bottom:8px">' + scenarioName(scen) + '</div>'
     + gridHTML(scen, null) + legendHTML();
-}
-function renderFacts() {
-  const open = [['UTG', 12.5, 29.5], ['MP/HJ', 20.1, 31.4], ['CO', 29.4, 38.1], ['BTN', 43.9, 50.2], ['SB', 63.8, 42.2]];
-  $('#factOpen').innerHTML = '<table><tr><th>Позиция</th><th class="n">Чарт</th><th class="n">Ты</th><th class="n">Разница</th></tr>'
-    + open.map(r => '<tr><td>' + r[0] + '</td><td class="n">' + r[1].toFixed(1) + ' %</td><td class="n">'
-      + r[2].toFixed(1) + ' %</td><td class="n ' + (r[2] > r[1] ? 'bad' : 'ok') + '">'
-      + (r[2] - r[1] > 0 ? '+' : '') + (r[2] - r[1]).toFixed(1) + '</td></tr>').join('') + '</table>';
-  const fac = [['BTN', 1427, 18.1, 6.9, 75.0, 14.2, 2.7], ['BB', 2236, 10.3, 46.0, 43.7, 23.5, 3.6]];
-  $('#factFacing').innerHTML = '<table><tr><th>Поз.</th><th class="n">Раз</th><th class="n">3-бет</th><th class="n">Колл</th>'
-    + '<th class="n">Фолд</th><th class="n">Чарт 3-бет<br>агр./пасс.</th></tr>'
-    + fac.map(r => '<tr><td>' + r[0] + '</td><td class="n">' + r[1] + '</td><td class="n">' + r[2].toFixed(1)
-      + ' %</td><td class="n">' + r[3].toFixed(1) + ' %</td><td class="n">' + r[4].toFixed(1) + ' %</td><td class="n">'
-      + r[5].toFixed(1) + ' / ' + r[6].toFixed(1) + '</td></tr>').join('') + '</table>';
 }
 
 function fillSelects() {
