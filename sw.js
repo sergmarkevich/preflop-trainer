@@ -1,6 +1,6 @@
 /* Кеш: страница и разметка — из сети (чтобы обновления появлялись сразу),
    статика (js/css/иконки) — из кеша с фоновым обновлением. */
-const CACHE = 'preflop-trainer-v3';
+const CACHE = 'preflop-trainer-v4';
 const FILES = ['./', 'index.html', 'styles.css', 'app.js', 'logic.js', 'ranges.js',
                'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 

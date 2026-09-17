@@ -2,8 +2,8 @@
 const R = window.RANGES, RANGES = R.ranges, SECTIONS = R.sections;
 const L = window.Logic;
 const { CELLS, WEIGHTED, actionList, actionsOf, acceptable, scenarioName, PRESETS, ACT_RU, ACT_CLS } = L;
-const VER = '2026-09-17.3';
-const STORE = 'preflopTrainerStats_v1', SETSTORE = 'preflopTrainerSet_v1';
+const VER = '2026-09-17.4';
+const STORE = 'preflopTrainerStats_v1', SETSTORE = 'preflopTrainerSet_v1', DAYSTORE = 'preflopTrainerDays_v1';
 const $ = (s) => document.querySelector(s);
 const state = { scens: [], scen: null, hand: null, answered: false, ok: null };
 
@@ -38,6 +38,23 @@ function totals() {
   for (const k in stats) { t += stats[k].t; w += stats[k].w; }
   return { t, w };
 }
+
+/* ---- история по дням ---- */
+function loadDays() { try { return JSON.parse(localStorage.getItem(DAYSTORE)) || {}; } catch (e) { return {}; } }
+let days = loadDays();
+function saveDays() { try { localStorage.setItem(DAYSTORE, JSON.stringify(days)); } catch (e) {} }
+function todayKey(d) {
+  const x = d || new Date();
+  return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+}
+function logAnswer(scen, hand, wrong) {
+  const k = todayKey(), o = days[k] || (days[k] = { t: 0, w: 0, s: {}, h: {} });
+  o.t++; if (wrong) o.w++;
+  o.s[scen] = o.s[scen] || [0, 0]; o.s[scen][0]++; if (wrong) o.s[scen][1]++;
+  o.h[hand] = o.h[hand] || [0, 0]; o.h[hand][0]++; if (wrong) o.h[hand][1]++;
+  saveDays();
+}
+function acc(o) { return o.t ? 100 * (o.t - o.w) / o.t : 0; }
 
 /* ---- сетка ---- */
 function gridHTML(scen, markHand) {
@@ -98,6 +115,7 @@ function answer(act) {
   const ok = acc.length ? acc.indexOf(act) >= 0 : act === 'fold';
   state.answered = true; state.ok = ok;
   bump(state.scen, state.hand, !ok);
+  logAnswer(state.scen, state.hand, !ok);
   renderQuiz();
 }
 
@@ -118,6 +136,50 @@ function renderErrors() {
   $('#errList').innerHTML = '<table><tr><th>Рука</th><th>Спот</th><th class="n">Ошибок</th><th class="n">Всего</th></tr>'
     + rows.map(r => '<tr><td><b>' + r.h + '</b></td><td>' + scenarioName(r.s) + '</td>'
       + '<td class="n bad">' + r.w + '</td><td class="n">' + r.t + '</td></tr>').join('') + '</table>';
+}
+
+/* ---- прогресс ---- */
+function topTable(map, label, lim) {
+  const rows = Object.keys(map).map(k => ({ k: k, t: map[k][0], w: map[k][1] }))
+    .filter(r => r.w > 0).sort((a, b) => (b.w / b.t - a.w / a.t) || (b.w - a.w) || (b.t - a.t)).slice(0, lim || 10);
+  if (!rows.length) return '<div class="dim">Ошибок нет.</div>';
+  return '<table><tr><th>Что</th><th class="n">Ошибок</th><th class="n">Всего</th><th class="n">Точность</th></tr>'
+    + rows.map(r => '<tr><td>' + label(r.k) + '</td><td class="n bad">' + r.w + '</td><td class="n">' + r.t
+      + '</td><td class="n">' + (100 * (r.t - r.w) / r.t).toFixed(1) + ' %</td></tr>').join('') + '</table>';
+}
+function renderProgress() {
+  const box = $('#progress'); if (!box) return;
+  const ks = Object.keys(days).sort();
+  if (!ks.length) {
+    box.innerHTML = 'Данных пока нет. История копится с сегодняшнего дня: порешай раздач двадцать, и здесь появится точность по дням, худшие споты и руки.';
+    return;
+  }
+  const sum = (arr) => arr.reduce((a, k) => ({ t: a.t + days[k].t, w: a.w + days[k].w }), { t: 0, w: 0 });
+  const r = sum(ks.slice(-3)), b = sum(ks.slice(-6, -3));
+  let h = '';
+  if (b.t && r.t) {
+    const d = acc(r) - acc(b);
+    h += '<div class="dim" style="margin-bottom:10px">За последние 3 дня: <b>' + acc(r).toFixed(1) + ' %</b> против <b>'
+      + acc(b).toFixed(1) + ' %</b> за предыдущие 3 — <b class="' + (d >= 0 ? 'ok' : 'bad') + '">' + (d >= 0 ? '+' : '') + d.toFixed(1) + ' п.п.</b></div>';
+  }
+  h += '<table><tr><th>День</th><th class="n">Раздач</th><th class="n">Ош.</th><th class="n">Точность</th><th></th></tr>';
+  ks.slice(-14).reverse().forEach(k => {
+    const o = days[k], a = acc(o);
+    h += '<tr><td>' + k.split('-').reverse().join('.') + '</td><td class="n">' + o.t + '</td><td class="n bad">' + o.w
+      + '</td><td class="n">' + a.toFixed(1) + ' %</td>'
+      + '<td style="width:110px"><i style="display:inline-block;height:10px;border-radius:5px;vertical-align:middle;background:linear-gradient(90deg,#d9534f,#e0b341,#2ea043);width:'
+      + Math.max(4, Math.round(a)) + '%"></i></td></tr>';
+  });
+  h += '</table>';
+  const byScen = {}, byHand = {};
+  ks.forEach(k => {
+    const o = days[k];
+    for (const s in o.s) { const x = byScen[s] || (byScen[s] = [0, 0]); x[0] += o.s[s][0]; x[1] += o.s[s][1]; }
+    for (const q in o.h) { const x = byHand[q] || (byHand[q] = [0, 0]); x[0] += o.h[q][0]; x[1] += o.h[q][1]; }
+  });
+  h += '<h2 style="margin:16px 0 8px">Худшие споты</h2>' + topTable(byScen, scenarioName);
+  h += '<h2 style="margin:16px 0 8px">Худшие руки</h2>' + topTable(byHand, (x) => x);
+  box.innerHTML = h;
 }
 
 /* ---- выбор спотов ---- */
@@ -161,10 +223,11 @@ function applySet(set) {
 
 /* ---- вкладки и запуск ---- */
 function show(v) {
-  ['quiz', 'charts', 'err'].forEach(k => { $('#v-' + k).style.display = (k === v ? '' : 'none'); });
+  ['quiz', 'charts', 'err', 'progress'].forEach(k => { $('#v-' + k).style.display = (k === v ? '' : 'none'); });
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   if (v === 'charts') renderCharts();
   if (v === 'err') renderErrors();
+  if (v === 'progress') renderProgress();
 }
 function init() {
   state.scens = loadSet();
@@ -199,7 +262,7 @@ function init() {
       setTimeout(() => location.reload(), 800);
     }); else location.reload();
   });
-  $('#resetErr').addEventListener('click', () => { if (confirm('Обнулить статистику ошибок?')) { stats = {}; save(); renderErrors(); } });
+  $('#resetErr').addEventListener('click', () => { if (confirm('Обнулить всю статистику: ошибки и историю по дням?')) { stats = {}; days = {}; save(); saveDays(); renderErrors(); renderProgress(); } });
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => {});
     navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
@@ -207,3 +270,8 @@ function init() {
   nextHand();
 }
 document.addEventListener('DOMContentLoaded', init);
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { answer, nextHand, show, renderProgress, renderErrors, state, todayKey,
+    getStats: () => stats, getDays: () => days };
+}

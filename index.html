@@ -45,10 +45,15 @@
   <div class="card"><button id="resetErr" style="width:100%;padding:10px;border-radius:9px;border:1px solid #313643;background:#262a34;color:#e8eaf0">Обнулить статистику ошибок</button></div>
 </section>
 
+<section id="v-progress" style="display:none">
+  <div class="card"><h2 style="margin-top:0">Прогресс по дням</h2><div id="progress" class="dim"></div></div>
+</section>
+
 <div id="tabs">
   <button data-v="quiz" class="on">Тренировка</button>
   <button data-v="charts">Чарты</button>
   <button data-v="err">Ошибки</button>
+  <button data-v="progress">Прогресс</button>
   </div>
 <button id="updateApp" style="width:100%;padding:10px;border-radius:9px;border:1px solid #313643;background:#262a34;color:#e8eaf0;margin-bottom:10px">Обновить приложение</button>
 <div id="foot">Версия: <span id="ver">—</span> · Диапазоны — ручная разметка автора тренажёра (не выгрузка солвера, без частот). Для личного использования.</div>
